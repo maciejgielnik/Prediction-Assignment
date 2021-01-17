@@ -487,8 +487,8 @@ inTrain &lt;- createDataPartition(trainfin$classe, p = 0.7, list = FALSE)
 dataTraining &lt;- trainfin[inTrain,]
 dataTesting &lt;- trainfin[-inTrain,] </code></pre>
 </div>
-<div id="predicting-with-trees" class="section level2">
-<h2>Predicting with trees</h2>
+<div id="predicting-with-trees-out-of-sample-error-cross-validation" class="section level2">
+<h2>Predicting with trees, out of sample error, cross validation</h2>
 <pre class="r"><code>modelRpart &lt;- train(classe~., data = dataTraining, method = &quot;rpart&quot;)
 confusionMatrix(dataTesting$classe, predict(modelRpart,dataTesting))</code></pre>
 <pre><code>## Confusion Matrix and Statistics
@@ -524,8 +524,8 @@ confusionMatrix(dataTesting$classe, predict(modelRpart,dataTesting))</code></pre
 ## Detection Prevalence   0.2845   0.1935   0.1743  0.16381  0.18386
 ## Balanced Accuracy      0.8106   0.6976   0.6631  0.64784  0.93715</code></pre>
 </div>
-<div id="predicting-with-random-forest" class="section level2">
-<h2>Predicting with random forest</h2>
+<div id="predicting-with-random-forest-out-of-sample-error-cross-validation" class="section level2">
+<h2>Predicting with random forest, out of sample error, cross validation</h2>
 <pre class="r"><code>modelrf &lt;- train(classe~., data = dataTraining, method = &quot;rf&quot;)
 confusionMatrix(dataTesting$classe, predict(modelrf,dataTesting))</code></pre>
 <pre><code>## Confusion Matrix and Statistics
@@ -561,8 +561,8 @@ confusionMatrix(dataTesting$classe, predict(modelrf,dataTesting))</code></pre>
 ## Detection Prevalence   0.2845   0.1935   0.1743   0.1638   0.1839
 ## Balanced Accuracy      0.9974   0.9940   0.9891   0.9957   0.9992</code></pre>
 </div>
-<div id="predicting-with-bagging" class="section level2">
-<h2>Predicting with bagging</h2>
+<div id="predicting-with-bagging-out-of-sample-error-cross-validation" class="section level2">
+<h2>Predicting with bagging, out of sample error, cross validation</h2>
 <pre class="r"><code>modeltreebag &lt;- train(classe~., data = dataTraining, method = &quot;treebag&quot;)
 confusionMatrix(dataTesting$classe, predict(modeltreebag,dataTesting))</code></pre>
 <pre><code>## Confusion Matrix and Statistics
@@ -598,8 +598,8 @@ confusionMatrix(dataTesting$classe, predict(modeltreebag,dataTesting))</code></p
 ## Detection Prevalence   0.2845   0.1935   0.1743   0.1638   0.1839
 ## Balanced Accuracy      0.9947   0.9855   0.9802   0.9938   0.9973</code></pre>
 </div>
-<div id="predicting-with-boosting" class="section level2">
-<h2>Predicting with boosting</h2>
+<div id="predicting-with-boosting-out-of-sample-error-cross-validation" class="section level2">
+<h2>Predicting with boosting, out of sample error, cross validation</h2>
 <pre class="r"><code>modelGBM &lt;- train(classe~., data = dataTraining, method = &quot;gbm&quot;, verbose = FALSE)
 confusionMatrix(dataTesting$classe, predict(modelGBM,dataTesting))</code></pre>
 <pre><code>## Confusion Matrix and Statistics
@@ -637,7 +637,7 @@ confusionMatrix(dataTesting$classe, predict(modelGBM,dataTesting))</code></pre>
 </div>
 <div id="predictions---summary" class="section level2">
 <h2>Predictions - summary</h2>
-<p>The random forest had the best accuracy of ~99%.</p>
+<p>The random forest had the best accuracy of ~99% with out of sample error less than 1% on a data set for corss validation.</p>
 </div>
 <div id="predicting-on-testing-data-set" class="section level2">
 <h2>Predicting on testing data set</h2>

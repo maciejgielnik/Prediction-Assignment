@@ -2,7 +2,9 @@
 title: "Assignment"
 author: "Maciej Gielnik"
 date: "17/01/2021"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ## Introduction
@@ -97,30 +99,31 @@ dataTraining <- trainfin[inTrain,]
 dataTesting <- trainfin[-inTrain,] 
 ```
 
-## Predicting with trees
+## Predicting with trees, out of sample error, cross validation
 ``` {r dzewa, cache = TRUE}
 modelRpart <- train(classe~., data = dataTraining, method = "rpart")
 confusionMatrix(dataTesting$classe, predict(modelRpart,dataTesting))
 ```
 
-## Predicting with random forest
+## Predicting with random forest, out of sample error, cross validation
 ``` {r las, cache = TRUE}
 modelrf <- train(classe~., data = dataTraining, method = "rf")
 confusionMatrix(dataTesting$classe, predict(modelrf,dataTesting))
 ```
-## Predicting with bagging
+## Predicting with bagging, out of sample error, cross validation
 ```{r bagging, cache = TRUE}
 modeltreebag <- train(classe~., data = dataTraining, method = "treebag")
 confusionMatrix(dataTesting$classe, predict(modeltreebag,dataTesting))
 ```
-## Predicting with boosting
+## Predicting with boosting, out of sample error, cross validation
 ```{r boosting, cache = TRUE}
 modelGBM <- train(classe~., data = dataTraining, method = "gbm", verbose = FALSE)
 confusionMatrix(dataTesting$classe, predict(modelGBM,dataTesting))
 ```
 
 ## Predictions - summary
-The random forest had the best accuracy of ~99%.
+The random forest had the best accuracy of ~99% with out of sample error less than 1% 
+on a data set for corss validation. 
 
 ## Predicting on testing data set
 ```{r predict}
