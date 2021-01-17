@@ -1,0 +1,128 @@
+---
+title: "Assignment"
+author: "Maciej Gielnik"
+date: "17/01/2021"
+output: html_document
+---
+
+## Introduction
+
+Smart devices are getting more and more popular. They can be used to monitor our activities and can help us to improve our training routine. 
+
+The main goal of this Assignment was to predict how participants performed the Unilateral Dumbbell Biceps Curl using data from sensors placed on arm, glove, belt and dumbbell (Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises).
+
+In the data set participants performed the Unilateral Dumbbell Biceps Curl according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E).
+
+The main question is, if we use the data from sensors, can we define how the Unilateral Dumbbell Biceps Curl was performed?
+
+## Downloading and preprocessing the data
+
+The files were downloaded using following commands: 
+```{r download}
+if (!file.exists("pml-training.csv")){
+    URLtraining <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+    download.file(URLtraining, destfile = "./pml-training.csv")
+}
+
+if (!file.exists("pml-testing.csv")){
+    URLtesting <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+    download.file(URLtesting, destfile = "./pml-testing.csv")
+}
+```
+
+Downloaded filed were loaded using following commands:
+```{r load}
+training <- read.csv("./pml-training.csv", na.strings = c("", "NA"))
+testing <- read.csv("./pml-testing.csv")
+```
+
+The **training** data frame contains data for building and testing a model, where
+**testing** data frame contains data for prediction to answer the final Quiz questions.
+
+The **training** data frame has a lot of missing values, therefore to build the
+model for prediction, columns that have more than 50% NA were removed using the
+following script:
+
+```{r clean}
+{
+j <- h <- training1 <- trainingtemp <- 0 #initial parameters
+
+dimmension <- (matrix(dim(training))[1,1])
+columnNames <- names(training)
+
+for (i in 1:160){
+    
+    addition <- is.na(training[, i])
+    k <- (sum(addition)) #adding the number of NA`s in a i`th column
+    
+        if (k < dimmension/2){ #only columns with less than 50% NA`s goes here
+                 
+                    if (j == 0) { #first column
+                        wybrana <- columnNames[i]
+                        training1 <- subset(training, select = c(wybrana))
+                    }
+            
+                    if (j > 0){  #binding rest of columns to the first column
+                        wybrana <- columnNames[i]
+                        trainingtemp <- subset(training, select = c(wybrana))
+                        training1 <-cbind(training1, trainingtemp) 
+                    }
+                   j <- 1
+        }
+    }
+}
+```
+
+The first seven columns were also removed as the contain data with username, 
+timestamps, etc. 
+```{r remove first 6}
+trainfin <- training1[, 8:60]
+```
+## Building the trainig and testing set. 
+
+To build training set and test set I have loaded the caret package.
+I have also loaded the data.table package because it allows multithreading. 
+``` {r loadinglibs}
+library(data.table)
+library(caret)
+
+```
+
+Creating training and testing data set. I have also set the seed to make operation reproducable.
+```{r prepare}
+RNGversion("3.0.0.")
+set.seed(123)
+inTrain <- createDataPartition(trainfin$classe, p = 0.7, list = FALSE)
+dataTraining <- trainfin[inTrain,]
+dataTesting <- trainfin[-inTrain,] 
+```
+
+## Predicting with trees
+``` {r dzewa, cache = TRUE}
+modelRpart <- train(classe~., data = dataTraining, method = "rpart")
+confusionMatrix(dataTesting$classe, predict(modelRpart,dataTesting))
+```
+
+## Predicting with random forest
+``` {r las, cache = TRUE}
+modelrf <- train(classe~., data = dataTraining, method = "rf")
+confusionMatrix(dataTesting$classe, predict(modelrf,dataTesting))
+```
+## Predicting with bagging
+```{r bagging, cache = TRUE}
+modeltreebag <- train(classe~., data = dataTraining, method = "treebag")
+confusionMatrix(dataTesting$classe, predict(modeltreebag,dataTesting))
+```
+## Predicting with boosting
+```{r boosting, cache = TRUE}
+modelGBM <- train(classe~., data = dataTraining, method = "gbm", verbose = FALSE)
+confusionMatrix(dataTesting$classe, predict(modelGBM,dataTesting))
+```
+
+## Predictions - summary
+The random forest had the best accuracy of ~99%.
+
+## Predicting on testing data set
+```{r predict}
+print(predict(modelrf,testing))
+```
